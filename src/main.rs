@@ -29,10 +29,10 @@ fn main() {
     }
 }
 //this function takes in a gameboard and calculates the next state
-fn game_of_life(grid: &mut Vec<Vec<u8>>) {
+fn game_of_life(grid: &Vec<Vec<u8>>) -> &Vec<Vec<u8>> {
     let rows = grid.len();
     let cells = grid[0].len();
-    let old = grid.clone();
+    let old = grid;
     for x in 0..rows {
         for y in 0..cells {
             //if if the current cell is at the edge of the board then we only check the indeces on the board
@@ -95,6 +95,7 @@ fn startSession(args: &Vec<String>) {
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0],
 
     ];
+    let mut new_grid = vec![vec![0;grid[0].len()];grid.len()];
     if args[1] == "continuous" {
         print_board(&grid);
         let mut x = 500;
@@ -102,11 +103,16 @@ fn startSession(args: &Vec<String>) {
             x = args[2].parse::<u64>().unwrap();
         }
         let x_milliseconds = time::Duration::from_millis(x);
+        let mut gen = 1;
 
         loop {
             thread::sleep(x_milliseconds);
-            game_of_life(&mut grid);
-            print_board(&grid);
+            println!("Generation {}", gen);
+            let mut new_grid_ptr = &new_grid;
+            new_grid = game_of_life(&grid);
+            let grid = new_grid_ptr;
+            print_board(&new_grid);
+            gen+=1;
         }
     }
     if args[1] == "generate" {
